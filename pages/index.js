@@ -1,65 +1,120 @@
 import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import { useState } from 'react'
+import { Col, Container, Row, Button, Form, Dropdown } from 'react-bootstrap'
+import axios from 'axios'
 
-export default function Home() {
-  return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+const fetcher = url => axios.get(url).then(res => res.data)
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+export async function getServerSideProps(context) {
+    console.log(process.env.APP_URL);
+    const tasks = await fetcher('http://localhost:3000/api/list');
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
+    return {
+        props: {
+            tasks
+        },
+    }
+}
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+export default function Home(props) {
+    const [tasks, setTasks] = useState(props.tasks);
+    const [taskInput, setTaskInput] = useState("");
+    const [isCreating, setIsCreating] = useState(false);
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+    function handleInput(event) {
+        setTaskInput(event.target.value);
+    }
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
+    async function refresh() {
+        setTasks(await fetcher('http://localhost:3000/api/list'));
+    }
 
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+    async function handleInsert(event) {
+        event.preventDefault();
+
+        setIsCreating(true);
+
+        await axios.post('/api/create', {
+                task: taskInput
+            })
+            .then(function (response) {
+                console.log(response);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+
+        setIsCreating(false);
+        setTaskInput("");
+
+        refresh();
+    }
+
+    async function handleDelete(event, id) {
+        event.preventDefault();
+
+        await axios.post('/api/destroy', {
+            id: id
+        })
+        .then(function (response) {
+            console.log(response);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+        
+        refresh();
+    }
+
+    return (
+        <div>
+            <Head>
+            <title>To-Do with Cassandra</title>
+            <link rel="icon" href="/favicon.ico" />
+            </Head>
+
+            <Container>
+                <Row>
+                    <Col className="text-center">
+                        <h1>To-Do List</h1>
+                    </Col>
+                </Row>
+                
+                <Row className="py-5">
+                    <Col>
+                        <Dropdown.Divider></Dropdown.Divider>
+                        {tasks.map((task) => (
+                            <div key={task.id}>
+                                <Row>   
+                                    <Col className="d-flex align-items-center justify-content-between">
+                                        {task.task}
+                                        <Button 
+                                        onClick={() => handleDelete(event, task.id)} 
+                                        variant="danger">
+                                            Delete
+                                        </Button>
+                                    </Col>
+                                    
+                                </Row>
+                                <Dropdown.Divider></Dropdown.Divider>
+                            </div>
+                        ))}
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        <Form>
+                            <Form.Group>
+                                <Form.Label>Insert a task</Form.Label>
+                                <Form.Control type="text" placeholder="Enter text" onChange={handleInput} value={taskInput} required={true} />
+                            </Form.Group>
+                            <Button onClick={handleInsert} variant="primary" type="submit" disabled={isCreating}>
+                                { isCreating ? 'Loading' : 'Insert'}
+                            </Button>
+                        </Form>
+                    </Col>
+                </Row>
+            </Container>
         </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  )
+    )
 }
