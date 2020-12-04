@@ -8,9 +8,7 @@ services:
     container_name: cassandra-1-seed
     restart: always
     volumes:
-      - cassandra-volume
-    ports:
-      - 9042:9042
+      - cassandra-volume:/var/lib/cassandra
     networks:
       - cassandra-network
   cassandra-2:
