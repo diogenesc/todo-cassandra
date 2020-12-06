@@ -1,10 +1,10 @@
 import cassandraConn from '../../services/cassandraConnect'
 
-function compare( a, b ) {
-  if ( a.created_at < b.created_at ){
+function compare(a, b) {
+  if (a.created_at < b.created_at){
     return -1;
   }
-  if ( a.created_at > b.created_at ){
+  if (a.created_at > b.created_at){
     return 1;
   }
   return 0;

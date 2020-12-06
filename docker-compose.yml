@@ -3,7 +3,7 @@ version: "3.8"
 services:
   cassandra-1:
     image: cassandra
-    container_name: cassandra-1-seed
+    container_name: cassandra-1
     restart: always
     volumes:
       - ./cassandra.cql:/cassandra.cql
@@ -14,6 +14,8 @@ services:
     image: cassandra
     container_name: cassandra-2
     restart: always
+    environment: 
+      - CASSANDRA_SEEDS=cassandra-1
     networks:
       - cassandra-network
     depends_on:
@@ -24,6 +26,7 @@ services:
     container_name: app
     restart: always
     working_dir: /home/node/app
+    command: 'yarn dev'
     volumes:
       - ./:/home/node/app
     ports:
@@ -31,8 +34,7 @@ services:
     networks:
       - cassandra-network
     depends_on: 
-      - cassandra-2
-    command: 'yarn dev'
+      - cassandra-1
 
 networks:
   cassandra-network:

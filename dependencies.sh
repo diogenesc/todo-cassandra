@@ -1,0 +1,1 @@
+docker run -it --user=node --rm -v "$PWD":/usr/src/app -w /usr/src/app node yarn

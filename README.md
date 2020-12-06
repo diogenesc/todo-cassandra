@@ -6,15 +6,19 @@
 git clone https://github.com/diogenesc/todo-cassandra.git
 cd todo-cassandra
 ```
- 2. Start the containers
+ 2. Install dependencies
+```
+./dependencies.sh
+```
+ 3. Start the containers
 ```
 docker-compose up -d
 ```
- 3. Initialize the keyspace
+ 4. Wait a minute or two and initialize the keyspace
 ```
 docker-compose exec cassandra-1 cqlsh -f cassandra.cql
 ```
- 4. Access on browser
+ 5. Access on browser
 ```
 http://localhost:3000
 ```

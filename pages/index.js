@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import Link from 'next/link'
 import { useState } from 'react'
 import { Col, Container, Row, Button, Form, Dropdown } from 'react-bootstrap'
 import axios from 'axios'
@@ -6,7 +7,6 @@ import axios from 'axios'
 const fetcher = url => axios.get(url).then(res => res.data)
 
 export async function getServerSideProps(context) {
-    console.log(process.env.APP_URL);
     const tasks = await fetcher('http://localhost:3000/api/list');
 
     return {
@@ -21,15 +21,12 @@ export default function Home(props) {
     const [taskInput, setTaskInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    function handleInput(event) {
-        setTaskInput(event.target.value);
-    }
-
     async function refresh() {
-        setTasks(await fetcher('http://localhost:3000/api/list'));
+        setTasks(await fetcher('/api/list'));
+        console.log(tasks);
     }
 
-    async function handleInsert() {
+    async function handleSubmit() {
         event.preventDefault();
 
         if(taskInput === "") {
@@ -55,7 +52,7 @@ export default function Home(props) {
         refresh();
     }
 
-    async function handleDelete(event, id) {
+    async function handleDelete(id) {
         event.preventDefault();
 
         await axios.post('/api/destroy', {
@@ -95,13 +92,13 @@ export default function Home(props) {
             <Container>
                 <Row className="py-4">
                     <Col className="text-center">
-                        <h1>To-Do List</h1>
+                        <Link href="/"><a><h1>To-Do List</h1></a></Link>
                     </Col>
                 </Row>
 
                 <Row>
                     <Col className="text-right">
-                        <Button onClick={() => {refresh(); alert("All good!")}} variant="success" type="submit">
+                        <Button onClick={refresh} variant="success" type="submit">
                             Refresh
                         </Button>
                         <Button className="ml-2" onClick={handleDeleteAll} variant="warning" type="submit">
@@ -119,7 +116,7 @@ export default function Home(props) {
                                     <Col className="d-flex align-items-center justify-content-between">
                                         {task.task}
                                         <Button 
-                                        onClick={() => handleDelete(event, task.id)} 
+                                        onClick={() => handleDelete(task.id)} 
                                         variant="danger">
                                             Delete
                                         </Button>
@@ -133,16 +130,17 @@ export default function Home(props) {
                 </Row>
                 <Row className="mb-3">
                     <Col>
-                        <Form onSubmit={handleInsert}>
+                        <Form onSubmit={handleSubmit}>
                             <Form.Group>
-                                <Form.Label>Insert a task</Form.Label>
+                                <Form.Label htmlFor="task">Insert a task</Form.Label>
                                 <Form.Control type="text"
                                     onChange={() => setTaskInput(event.target.value)} 
                                     value={taskInput}
+                                    id="task"
                                 />
                             </Form.Group>
                             <Button variant="primary" type="submit" disabled={isLoading}>
-                                { isLoading ? 'Loading' : 'Insert'}
+                                { isLoading ? 'Loading' : 'Create'}
                             </Button>
                         </Form>
                     </Col>

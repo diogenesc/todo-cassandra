@@ -15,7 +15,6 @@
     "pg": "^8.5.1",
     "react": "17.0.1",
     "react-bootstrap": "^1.4.0",
-    "react-dom": "17.0.1",
-    "swr": "^0.3.9"
+    "react-dom": "17.0.1"
   }
 }
