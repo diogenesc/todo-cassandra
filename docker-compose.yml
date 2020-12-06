@@ -2,12 +2,11 @@ version: "3.8"
 
 services:
   cassandra-1:
-    build:
-      context: .
-      dockerfile: Dockerfile.cassandra
+    image: cassandra
     container_name: cassandra-1-seed
     restart: always
     volumes:
+      - ./cassandra.cql:/cassandra.cql
       - cassandra-volume:/var/lib/cassandra
     networks:
       - cassandra-network
@@ -17,8 +16,6 @@ services:
     restart: always
     networks:
       - cassandra-network
-    environment:
-      - CASSANDRA_SEEDS=cassandra-1
     depends_on:
       - cassandra-1
   app:

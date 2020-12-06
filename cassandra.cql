@@ -1,6 +1,6 @@
-DROP KEYSPACE trabalho_final;
+DROP KEYSPACE IF EXISTS trabalho_final;
 
-CREATE KEYSPACE IF NOT EXISTS trabalho_final WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+CREATE KEYSPACE trabalho_final WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 2};
 
 CREATE TABLE trabalho_final.tasks(
     id uuid,

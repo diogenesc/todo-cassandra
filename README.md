@@ -12,8 +12,7 @@ docker-compose up -d
 ```
  3. Initialize the keyspace
 ```
-docker-compose exec cassandra-1 bash
-cqlsh -f cassandra.cql
+docker-compose exec cassandra-1 cqlsh -f cassandra.cql
 ```
  4. Access on browser
 ```

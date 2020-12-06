@@ -19,7 +19,7 @@ export async function getServerSideProps(context) {
 export default function Home(props) {
     const [tasks, setTasks] = useState(props.tasks);
     const [taskInput, setTaskInput] = useState("");
-    const [isCreating, setIsCreating] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     function handleInput(event) {
         setTaskInput(event.target.value);
@@ -29,10 +29,15 @@ export default function Home(props) {
         setTasks(await fetcher('http://localhost:3000/api/list'));
     }
 
-    async function handleInsert(event) {
+    async function handleInsert() {
         event.preventDefault();
 
-        setIsCreating(true);
+        if(taskInput === "") {
+            alert("Invalid input");
+            return;
+        }
+
+        setIsLoading(true);
 
         await axios.post('/api/create', {
                 task: taskInput
@@ -44,7 +49,7 @@ export default function Home(props) {
                 console.log(error);
             });
 
-        setIsCreating(false);
+        setIsLoading(false);
         setTaskInput("");
 
         refresh();
@@ -66,6 +71,20 @@ export default function Home(props) {
         refresh();
     }
 
+    async function handleDeleteAll(event) {
+        event.preventDefault();
+
+        await axios.post('/api/destroyAll', {})
+        .then(function (response) {
+            console.log(response);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+        
+        refresh();
+    }
+
     return (
         <div>
             <Head>
@@ -74,18 +93,29 @@ export default function Home(props) {
             </Head>
 
             <Container>
-                <Row>
+                <Row className="py-4">
                     <Col className="text-center">
                         <h1>To-Do List</h1>
                     </Col>
                 </Row>
+
+                <Row>
+                    <Col className="text-right">
+                        <Button onClick={() => {refresh(); alert("All good!")}} variant="success" type="submit">
+                            Refresh
+                        </Button>
+                        <Button className="ml-2" onClick={handleDeleteAll} variant="warning" type="submit">
+                            Delete all
+                        </Button>
+                    </Col>
+                </Row>
                 
-                <Row className="py-5">
+                <Row className="pb-5">
                     <Col>
                         <Dropdown.Divider></Dropdown.Divider>
                         {tasks.map((task) => (
                             <div key={task.id}>
-                                <Row>   
+                                <Row>
                                     <Col className="d-flex align-items-center justify-content-between">
                                         {task.task}
                                         <Button 
@@ -101,15 +131,18 @@ export default function Home(props) {
                         ))}
                     </Col>
                 </Row>
-                <Row>
+                <Row className="mb-3">
                     <Col>
-                        <Form>
+                        <Form onSubmit={handleInsert}>
                             <Form.Group>
                                 <Form.Label>Insert a task</Form.Label>
-                                <Form.Control type="text" placeholder="Enter text" onChange={handleInput} value={taskInput} required={true} />
+                                <Form.Control type="text"
+                                    onChange={() => setTaskInput(event.target.value)} 
+                                    value={taskInput}
+                                />
                             </Form.Group>
-                            <Button onClick={handleInsert} variant="primary" type="submit" disabled={isCreating}>
-                                { isCreating ? 'Loading' : 'Insert'}
+                            <Button variant="primary" type="submit" disabled={isLoading}>
+                                { isLoading ? 'Loading' : 'Insert'}
                             </Button>
                         </Form>
                     </Col>
