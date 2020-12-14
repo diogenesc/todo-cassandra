@@ -101,9 +101,6 @@ export default function Home(props) {
                         <Button onClick={refresh} variant="success" type="submit">
                             Refresh
                         </Button>
-                        <Button className="ml-2" onClick={handleDeleteAll} variant="warning" type="submit">
-                            Delete all
-                        </Button>
                     </Col>
                 </Row>
                 
